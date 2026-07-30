@@ -1,8 +1,10 @@
 from fastapi import FastAPI
+from database import Base, engine
+import models
 
-from routes import users
-from routes import products
-from routes import orders
+from routes import users, products, orders
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
