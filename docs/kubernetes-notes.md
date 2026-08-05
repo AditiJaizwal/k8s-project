@@ -1,5 +1,5 @@
 ## **Control Plane Flow**
-
+```
 Kubectl (YAML → JSON → HTTPS Request)
         |
         v
@@ -28,7 +28,7 @@ CRI (Pulls the image, creates, and starts the container)
         |
         v
 Kubelet (Monitors Pod and Node health and reports status to the API Server)
-
+```
 ## **Kubelet**
 
 1. Runs on every Worker Node.
