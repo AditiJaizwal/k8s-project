@@ -1,46 +1,44 @@
-Control Plane Flow
- 
+## **Control Plane Flow**
 
-Kubectl (yaml -> json -> https request)
+Kubectl (YAML → JSON → HTTPS Request)
         |
+        v
+API Server (Authentication, Authorization, Validation)
         |
-API Server (Authentication, Authorization, Syntax/Format checks)
+        v
+etcd (Stores the Desired State)
         |
+        v
+Controller Manager (Compares Desired State with Current State and runs the Reconciliation Loop)
         |
-Etcd (Stores the desired state)
+        v
+ReplicaSet (Creates the required Pods)
         |
+        v
+Scheduler (Assigns the Pod to a Worker Node)
         |
-Controller Manager (Compares the Current state with the Desired State - Then runs the reconciliation Loop)
+        v
+API Server (Stores the scheduling decision)
         |
+        v
+Kubelet (Watches the API Server, notices a Pod is assigned to its node, and tells the CRI to pull the image and start the container)
         |
-Replica Set (Creates the required Pods)
+        v
+CRI (Pulls the image, creates, and starts the container)
         |
-        |
-Scheduler (Schedules the Pod on a Node)
-        |
-        |
-API Server (It get to know that the Pod is not schedules on a node)
-        |
-        |
-Kubelet (Kubelet check with the API server, get to know that a new pod is schedules on node, Tells the CRI to pull image and run container)
-        |
-        |
-CRI (It pulls the image, creates container and runs it)
-        |
-        |
-Kubelet (Check the status of the pod, node, and inform the api server)
+        v
+Kubelet (Monitors Pod and Node health and reports status to the API Server)
 
+## **Kubelet**
 
-Kubelet
-
-1. It is a process on a worker node
-2. It notices if a pod is schedules (through API Server)
-3. It tells CRI to pull image and create containers.
-4. Mount Volumes
-5. Monitor Pod and Node health
-6. If a probe fails it kills the container and starts again
-7. It regularly sends information to the API Server:
-    - Node Health 
-    - cpu/memory usage
-    - Pod Status
-    - Container Status
+1. Runs on every Worker Node.
+2. Watches the API Server for Pods assigned to its node.
+3. Instructs the CRI to pull images and start containers.
+4. Mounts volumes.
+5. Monitors Pod and Node health.
+6. Restarts containers if health probes fail.
+7. Regularly reports to the API Server:
+   - Node Health
+   - CPU/Memory Usage
+   - Pod Status
+   - Container Status
