@@ -74,7 +74,7 @@ Done
 
 ```
 
-After that:
+Traffic flow:
 
 ```
 Packet
