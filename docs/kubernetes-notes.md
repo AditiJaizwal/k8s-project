@@ -97,6 +97,8 @@ Pod
 - Connects Pods running on different nodes.
 - Configures Linux networking (routes, veth pairs, bridges, etc.) depending on the CNI implementation.
 
+## Difference between Kube-proxy and CNI
+
 ### Kube-proxy
 
 Responsible for:
