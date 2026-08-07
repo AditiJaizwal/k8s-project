@@ -42,3 +42,45 @@ Kubelet (Monitors Pod and Node health and reports status to the API Server)
    - CPU/Memory Usage
    - Pod Status
    - Container Status
+
+
+##  **Service**
+
+1. A service is not a process or a pod, it is an object stored in etcd.
+2. It's just a data.
+3. The Service itself does nothing.
+4. It's just metadata. The actual work is done by:
+    - CoreDNS (name → ClusterIP)
+    - kube-proxy (ClusterIP → Pod IP)
+    - Linux kernel (packet forwarding)
+
+## **Kube Proxy**
+
+1. kube-proxy programs the Linux kernel's networking stack.
+2. It writes IPs in Iptables
+
+Responsibility of Kube-Proxy 
+
+```
+API Server
+↓
+Endpoint changes
+↓
+kube-proxy
+↓
+Programs iptables
+↓
+Done
+
+```
+
+After that:
+
+```
+Packet
+↓
+Linux Kernel
+↓
+Pod
+
+```
