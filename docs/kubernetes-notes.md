@@ -79,8 +79,43 @@ Traffic flow:
 ```
 Packet
 ↓
-Linux Kernel
+Linux Kernel route the Packet to Pod
 ↓
 Pod
 
 ```
+
+## **CNI - Cluster Network Interface**
+
+1. It creates the network so that every Pod IP is routable.
+2. After kube-proxy rewrites the Service IP to a Pod IP, Kubernetes still needs a way to physically deliver the packet to that Pod, even if it is running on another node.
+
+### Responsibilities of CNI
+
+- Assigns an IP address to every Pod.
+- Makes every Pod IP routable across the cluster.
+- Connects Pods running on different nodes.
+- Configures Linux networking (routes, veth pairs, bridges, etc.) depending on the CNI implementation.
+
+### Kube-proxy
+
+Responsible for:
+- Services
+- ClusterIP
+- Load balancing
+- Endpoint updates
+- iptables/IPVS programming
+
+Question it answers: "Which Pod should receive this packet?"
+
+### CNI
+
+Responsible for:
+- Pod IP allocation
+- Pod networking
+- Cross-node communication
+- Linux routes
+- veth pairs
+- Bridges/Tunnels/VPC routing
+
+Question it answers: "How do I physically reach this Pod?"
