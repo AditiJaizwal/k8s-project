@@ -14,3 +14,7 @@ venv/
 
 # VS code
 .vscode/
+
+# terraform
+.terraform
+.terraform.*
