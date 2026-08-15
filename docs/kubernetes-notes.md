@@ -44,15 +44,26 @@ Kubelet (Monitors Pod and Node health and reports status to the API Server)
    - Container Status
 
 
-##  **Service**
+## **CoreDNS**
 
-1. A service is not a process or a pod, it is an object stored in etcd.
-2. It's just a data.
-3. The Service itself does nothing.
-4. It's just metadata. The actual work is done by:
-    - CoreDNS (name → ClusterIP)
-    - kube-proxy (ClusterIP → Pod IP)
-    - Linux kernel (packet forwarding)
+Applications should not need to remember service's IP
+Instead, the backend connects to service endpoint ```eg: postgres-svc```
+
+The Pod asks CoreDNS:
+"What IP is postgres-svc?"
+
+CoreDNS returns the Service ClusterIP:
+```
+postgres-svc
+      ↓
+CoreDNS
+      ↓
+172.20.142.119
+```
+The full Service DNS name is:
+
+<service>.<namespace>.svc.cluster.local
+
 
 ## **Kube Proxy**
 
@@ -90,6 +101,25 @@ Pod
 1. It creates the network so that every Pod IP is routable.
 2. After kube-proxy rewrites the Service IP to a Pod IP, Kubernetes still needs a way to physically deliver the packet to that Pod, even if it is running on another node.
 
+Simple mental model:
+```
+CoreDNS
+"What is the Service IP?"
+
+        ↓
+
+kube-proxy / Service networking
+"Which Pod endpoint should receive this?"
+
+        ↓
+
+CNI
+"How can the packet reach that Pod IP?"
+```
+On EKS we observed ```aws-node``` running in kube-system.
+
+This is part of the AWS VPC CNI setup.
+
 ### Responsibilities of CNI
 
 - Assigns an IP address to every Pod.
@@ -121,3 +151,142 @@ Responsible for:
 - Bridges/Tunnels/VPC routing
 
 Question it answers: "How do I physically reach this Pod?"
+
+
+## Deployment
+
+A Deployment is a recipe describing how Kubernetes should create and manage Pods.
+
+Basic structure:
+```
+Deployment
+│
+├── metadata
+│
+└── spec
+    ├── replicas
+    ├── selector
+    └── template
+        ├── metadata
+        │   └── labels
+        └── spec
+            └── containers
+
+```
+##  **Service**
+
+1. A service is not a process or a pod, it is an object stored in etcd.
+2. It's just a data.
+3. The Service itself does nothing.
+4. It's just metadata. The actual work is done by:
+    - CoreDNS (name → ClusterIP)
+    - kube-proxy (ClusterIP → Pod IP)
+    - Linux kernel (packet forwarding)
+
+A Service provides a stable network endpoint (IP + DNS name) for accessing a group of Pods.
+
+Why is it needed? Pods are temporary—their IP addresses can change when they are recreated. A Service lets applications communicate without knowing individual Pod IPs.
+
+Basic structure
+```
+Service
+│
+├── apiVersion: v1
+│
+├── kind: Service
+│
+├── metadata
+│   └── name: postgres-svc
+│
+└── spec
+    │
+    ├── selector
+    │   └── app: postgres
+    │
+    ├── ports
+    │   ├── port: 5432
+    │   └── targetPort: 5432
+    │
+    └── type: ClusterIP
+```
+
+## Labels and Selectors
+
+Simple rule:
+
+Labels identify objects. Selectors find objects.
+
+The Pod template adds:
+```
+labels:
+  app: backend
+```
+
+The Deployment/ReplicaSet uses:
+```
+selector:
+  matchLabels:
+    app: backend
+```
+
+## Pod Failure States
+#### ErrImagePull
+
+Means Kubernetes attempted to pull the container image and failed.
+We debugged it using:
+
+```kubectl describe pod <pod>```
+
+The important section was:
+
+Events
+
+Our failure was caused by the image not existing in ECR.
+
+#### ImagePullBackOff
+
+After an image pull fails, Kubernetes retries.
+Instead of retrying continuously, it progressively waits longer between attempts.
+```
+ErrImagePull
+     ↓
+ImagePullBackOff
+     ↓
+retry
+```
+#### CrashLoopBackOff
+
+Our image eventually pulled successfully, but the application crashed because it tried to connect to: ```localhost:5432```
+
+There was no PostgreSQL server inside the backend Pod. The application exited, Kubernetes restarted it, it failed again, and eventually entered: CrashLoopBackOff
+
+
+
+
+## Commands Worth Remembering
+### Workloads
+kubectl get pods
+kubectl get pods -o wide
+kubectl get deployments
+kubectl get rs
+
+### Debugging
+kubectl describe pod <pod>
+kubectl logs <pod>
+
+### Services
+kubectl get svc
+kubectl get endpointslices
+
+### Rollouts
+kubectl rollout status deployment/<deployment>
+kubectl rollout history deployment/<deployment>
+kubectl rollout undo deployment/<deployment>
+
+### Cluster
+kubectl get nodes
+kubectl get pods -n kube-system
+
+### Context
+kubectl config current-context
+kubectl config get-contexts
