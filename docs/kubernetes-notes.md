@@ -62,7 +62,7 @@ CoreDNS
 ```
 The full Service DNS name is:
 
-<service>.<namespace>.svc.cluster.local
+```<service>.<namespace>.svc.cluster.local```
 
 
 ## **Kube Proxy**
@@ -265,28 +265,28 @@ There was no PostgreSQL server inside the backend Pod. The application exited, K
 
 ## Commands Worth Remembering
 ### Workloads
-kubectl get pods
-kubectl get pods -o wide
-kubectl get deployments
-kubectl get rs
+- ```kubectl get pods```
+- ```kubectl get pods -o wide```
+- ```kubectl get deployments```
+- ```kubectl get rs```
 
 ### Debugging
-kubectl describe pod <pod>
-kubectl logs <pod>
+- ```kubectl describe pod <pod>```
+- ```kubectl logs <pod>```
 
 ### Services
-kubectl get svc
-kubectl get endpointslices
+- ```kubectl get svc```
+- ```kubectl get endpointslices```
 
 ### Rollouts
-kubectl rollout status deployment/<deployment>
-kubectl rollout history deployment/<deployment>
-kubectl rollout undo deployment/<deployment>
+- ```kubectl rollout status deployment/<deployment>```
+- ```kubectl rollout history deployment/<deployment>```
+- ```kubectl rollout undo deployment/<deployment>```
 
 ### Cluster
-kubectl get nodes
-kubectl get pods -n kube-system
+- ```kubectl get nodes```
+- ```kubectl get pods -n kube-system```
 
 ### Context
-kubectl config current-context
-kubectl config get-contexts
+- ```kubectl config current-context```
+- ```kubectl config get-contexts```
