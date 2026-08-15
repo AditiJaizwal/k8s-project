@@ -20,6 +20,9 @@ spec:
         image: 163567208906.dkr.ecr.us-east-1.amazonaws.com/cc-adtest-b:v1
         env:
           - name: DATABASE_URL
-            value: "postgresql://postgres:postgres@postgres-svc:5432/shopkart"
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: DATABASE_URL
         ports:
         - containerPort: 8000
