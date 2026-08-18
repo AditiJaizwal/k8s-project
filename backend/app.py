@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from database import Base, engine
 import models
+import socket
 
 from routes import users, products, orders
 
@@ -16,3 +17,9 @@ app.include_router(orders.router)
 @app.get("/")
 def root():
     return {"message": "ShopKart API"}
+
+@app.get("/whoami")
+def whoami():
+    return {
+        "hostname": socket.gethostname()
+    }

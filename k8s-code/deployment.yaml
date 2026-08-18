@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: shopkart-backend
-        image: 163567208906.dkr.ecr.us-east-1.amazonaws.com/cc-adtest-b:v1
+        image: 163567208906.dkr.ecr.us-east-1.amazonaws.com/cc-adtest-b:v2
         env:
           - name: DATABASE_URL
             valueFrom:
