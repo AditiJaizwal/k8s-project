@@ -23,3 +23,7 @@ def whoami():
     return {
         "hostname": socket.gethostname()
     }
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
