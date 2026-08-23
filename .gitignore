@@ -19,3 +19,7 @@ venv/
 .terraform
 .terraform.*
 terraform/
+
+# Random
+Random.md
+Roadmap.md
